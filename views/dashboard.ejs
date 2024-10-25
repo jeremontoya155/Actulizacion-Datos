@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ced4da;
+        }
+        form label {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 5px;
+            display: block;
+        }
+        form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        form button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        form button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            margin-top: 40px;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        table th, table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        table th {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        table tr {
+            transition: background-color 0.3s ease;
+        }
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+        table td {
+            color: #495057;
+        }
+        p {
+            text-align: center;
+            font-size: 18px;
+            color: #6c757d;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Buscar Cliente por DNI</h1>
+
+    <!-- Formulario para buscar cliente por DNI -->
+    <form action="/clients/buscar" method="POST">
+        <label for="dni">DNI:</label>
+        <input type="text" name="dni" id="dni" placeholder="Ingresa el DNI" required>
+        <button type="submit">Buscar</button>
+    </form>
+
+    <!-- Mostrar resultados de la búsqueda -->
+    <h2>Resultados de la búsqueda</h2>
+    <% if (clientes.length > 0) { %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Código Cliente</th>
+                    <th>Nombre</th>
+                    <th>DNI</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Domicilio</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% clientes.forEach(cliente => { %>
+                    <tr>
+                        <td><%= cliente.CodCliente %></td>
+                        <td><%= cliente.Nombre %></td>
+                        <td><%= cliente.Documento %></td>
+                        <td><%= cliente.Telefono %></td>
+                        <td><%= cliente.Email %></td>
+                        <td><%= cliente.Domicilio %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    <% } else if (message) { %>
+        <p><%= message %></p>
+    <% } %>
+
+</body>
+</html>
