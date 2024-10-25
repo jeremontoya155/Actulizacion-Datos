@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+
+    <link rel="stylesheet" href="../dashboard.css">
+</head>
+<body>
+
+    <h1>Buscar Cliente por DNI</h1>
+
+    <!-- Formulario para buscar cliente por DNI -->
+    <form action="/clients/buscar" method="POST">
+        <label for="dni">DNI:</label>
+        <input type="text" name="dni" id="dni" placeholder="Ingresa el DNI" required>
+        <button type="submit">Buscar</button>
+    </form>
+
+    <!-- Mostrar resultados de la búsqueda -->
+    <h2>Resultados de la búsqueda</h2>
+    <% if (clientes.length > 0) { %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Código Cliente</th>
+                    <th>Nombre</th>
+                    <th>DNI</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Domicilio</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% clientes.forEach(cliente => { %>
+                    <tr>
+                        <td><%= cliente.CodCliente %></td>
+                        <td><%= cliente.Nombre %></td>
+                        <td><%= cliente.Documento %></td>
+                        <td><%= cliente.Telefono %></td>
+                        <td><%= cliente.Email %></td>
+                        <td><%= cliente.Domicilio %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    <% } else if (message) { %>
+        <p><%= message %></p>
+    <% } %>
+
+</body>
+</html>
