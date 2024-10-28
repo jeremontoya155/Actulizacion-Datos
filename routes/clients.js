@@ -21,51 +21,70 @@ router.get('/dashboard', isAuthenticated, (req, res) => {
 });
 
 // Ruta para buscar cliente por DNI
-router.post('/buscar', isAuthenticated, async (req, res) => {
-    const dni = req.body.dni;  // Obtener el DNI del formulario
+// Ruta para buscar cliente por DNI
+router.post('/buscar', async (req, res) => {
+    const { dni } = req.body;
 
     try {
-        // Verificar primero si el cliente ya está en la base interna (PostgreSQL)
-        const clienteInterno = await replicaDB.query(
-            'SELECT * FROM actualizaciones WHERE Documento = $1', 
-            [dni]
-        );
+        // 1. Buscar en la base de datos PostgreSQL (Replica)
+        const resultPostgre = await replicaDB.query('SELECT * FROM actualizaciones WHERE documento = $1', [dni]);
 
-        if (clienteInterno.rows.length > 0) {
-            // Si el cliente ya está en la base interna, mostrar el formulario con aviso y sus datos
-            const cliente = clienteInterno.rows[0];
+        if (resultPostgre.rows.length > 0) {
+            // Si el cliente existe en PostgreSQL, mostrar los datos y los campos "nuevo"
+            const cliente = resultPostgre.rows[0];
             return res.render('formulario', {
-                cliente,  // Enviamos todos los datos del cliente para rellenar el formulario
-                dni,
+                cliente,
                 editar: true,
-                message: `Este cliente ya ha sido modificado por la sucursal: ${cliente.sucursal}. Puedes actualizarlo si es necesario.`
+                dni,
+                message: `Este cliente ya ha sido modificado por la sucursal: ${cliente.sucursal}. Puedes actualizarlo si es necesario.`,
+                mostrarCamposNuevos: true // Mostramos los campos para actualizar teléfono y email
             });
         }
 
-        // Si el cliente no está en la base interna, buscar en la base externa (MySQL)
-        const query = 'SELECT CodCliente, Nombre, Documento, Telefono, Email, Domicilio FROM clientes WHERE Documento = ?';
-
-        originalDB.query(query, [dni], (err, results) => {
+        // 2. Si no está en PostgreSQL, buscar en la base de datos Plex (MySQL)
+        originalDB.query('SELECT CodCliente, Nombre, Documento, Telefono, Email, Domicilio FROM clientes WHERE Documento = ?', [dni], (err, results) => {
             if (err) {
-                console.error('Error al buscar el cliente en la base de datos externa', err);
-                return res.status(500).send('Error al buscar el cliente en la base de datos externa.');
+                console.error('Error al buscar en Plex:', err);
+                return res.status(500).send('Error al buscar en Plex.');
             }
 
             if (results.length > 0) {
-                // Si se encuentra el cliente en la base externa, mostrar el formulario para editar
-                const cliente = results[0];
-                res.render('formulario', { cliente, dni, editar: true, message: null });
-            } else {
-                // Si no se encuentra el cliente, mostrar el formulario para cargar los datos
-                res.render('formulario', { dni, cliente: {}, editar: false, message: null });
+                // Si el cliente existe en Plex, rellenar el formulario con esos datos (sin campos "nuevo")
+                const cliente = {
+                    nombre: results[0].Nombre,
+                    documento: results[0].Documento,
+                    telefono: results[0].Telefono,
+                    email: results[0].Email,
+                    domicilio: results[0].Domicilio,
+                    sucursal: '',  // No disponible en Plex, se deja vacío
+                    telefononuevo: '',  // Se deja vacío
+                    emailnuevo: ''  // Se deja vacío
+                };
+                return res.render('formulario', {
+                    cliente,
+                    editar: false,
+                    dni,
+                    message: null,
+                    mostrarCamposNuevos: false // No mostramos los campos "nuevo"
+                });
             }
+
+            // 3. Si no está en PostgreSQL ni en Plex, mostrar formulario vacío sin campos "nuevo"
+            return res.render('formulario', {
+                cliente: {},
+                editar: false,
+                dni,
+                message: null,
+                mostrarCamposNuevos: false // No mostramos los campos "nuevo"
+            });
         });
-    } catch (err) {
-        console.error('Error al buscar el cliente en la base de datos interna', err);
-        res.status(500).send('Error al buscar el cliente en la base de datos interna.');
+    } catch (error) {
+        console.error('Error al buscar en PostgreSQL:', error);
+        return res.status(500).send('Error al buscar en la base de datos.');
     }
 });
 
+module.exports = router;
 // Ruta para guardar o actualizar datos
 router.post('/guardar', isAuthenticated, async (req, res) => {
     const { dni, nombre, telefono, email, domicilio, sucursal, telefonoNuevo, emailNuevo, editar } = req.body;

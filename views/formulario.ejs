@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= editar ? 'Editar Cliente' : 'Cargar Nuevo Cliente' %></title>
-    <link rel="stylesheet" href="../formulario.css">
-  
+    
 </head>
 <body>
     <div class="container">
@@ -28,7 +27,7 @@
             <label for="documento">Documento (DNI):</label>
             <input type="text" name="documento" value="<%= cliente.documento || dni %>" readonly>
 
-            <label for="telefono">Teléfono:</label>
+            <label for="telefono">Teléfono(Sin si 0 ni 15):</label>
             <input type="text" name="telefono" value="<%= cliente.telefono || '' %>" required>
 
             <label for="email">Email:</label>
@@ -40,11 +39,14 @@
             <label for="sucursal">Sucursal:</label>
             <input type="text" name="sucursal" value="<%= cliente.sucursal || '' %>" required>
 
-            <label for="telefonoNuevo">Teléfono Nuevo:</label>
-            <input type="text" name="telefonoNuevo" value="<%= cliente.telefononuevo || '' %>" >
+            <!-- Mostrar campos de "Teléfono Nuevo" y "Email Nuevo" solo si ya existe en PostgreSQL -->
+            <% if (mostrarCamposNuevos) { %>
+                <label for="telefonoNuevo">Teléfono Nuevo:</label>
+                <input type="text" name="telefonoNuevo" value="<%= cliente.telefononuevo || '' %>">
 
-            <label for="emailNuevo">Email Nuevo:</label>
-            <input type="email" name="emailNuevo" value="<%= cliente.emailnuevo || '' %>" >
+                <label for="emailNuevo">Email Nuevo:</label>
+                <input type="email" name="emailNuevo" value="<%= cliente.emailnuevo || '' %>">
+            <% } %>
 
             <button type="submit"><%= editar ? 'Actualizar' : 'Guardar' %></button>
             <a href="/clients/dashboard" class="btn-back">Volver al Dashboard</a>
