@@ -1,84 +1,192 @@
+/* Variables globales */
+:root {
+    --primary-color: #3B82F6;
+    --primary-hover: #2563EB;
+    --bg-gradient: linear-gradient(135deg, #f6f8fc 0%, #e9effd 100%);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+body{
+    width:100%;
+    height: 100vh;
+    padding:0;
+    margin:0;
+    background-color: #1F2937;
+}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 20px;
-        }
-        h1, h2 {
-            color: #343a40;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        form {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border: 1px solid #ced4da;
-        }
-        form label {
-            font-weight: bold;
-            color: #495057;
-            margin-bottom: 5px;
-            display: block;
-        }
-        form input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        form button {
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        form button:hover {
-            background-color: #0056b3;
-        }
-        table {
-            width: 100%;
-            margin-top: 40px;
-            border-collapse: collapse;
-            background-color: #fff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        table th, table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #dee2e6;
-        }
-        table th {
-            background-color: #007bff;
-            color: white;
-            font-weight: bold;
-        }
-        table tr {
-            transition: background-color 0.3s ease;
-        }
-        table tr:hover {
-            background-color: #f1f1f1;
-        }
-        table td {
-            color: #495057;
-        }
-        p {
-            text-align: center;
-            font-size: 18px;
-            color: #6c757d;
-            margin-top: 40px;
-        }
+.dashboard {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-flow:row wrap;
+}
+
+/* Título con efecto decorativo */
+.dashboard h1 {
+    color: #1F2937;
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 0.75rem;
+}
+
+.dashboard h1::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 4px;
+    width: 60px;
+    background: var(--primary-color);
+    border-radius: 2px;
+}
+
+/* Formulario de búsqueda */
+.dashboard form {
+    width:80%;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard form:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Label con animación */
+.dashboard label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s ease;
+}
+
+/* Input de DNI */
+.dashboard input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 2px solid #E5E7EB;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    background: #F9FAFB;
+}
+
+.dashboard input:hover {
+    border-color: #D1D5DB;
+    background: white;
+}
+
+.dashboard input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background: white;
+}
+
+/* Placeholder con animación */
+.dashboard input::placeholder {
+    color: #9CA3AF;
+    transition: opacity 0.2s ease;
+}
+
+.dashboard input:focus::placeholder {
+    opacity: 0.5;
+}
+
+/* Botón de búsqueda */
+.dashboard button {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.dashboard button::before {
+    content: '🔍';
+    font-size: 1.1rem;
+}
+
+.dashboard button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.dashboard button:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Animación de carga (opcional) */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.dashboard button.loading {
+    position: relative;
+    pointer-events: none;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+    .dashboard {
+        background: #111827;
+    }
+
+    .dashboard h1 {
+        color: #F9FAFB;
+    }
+
+    .dashboard form {
+        background: #1F2937;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .dashboard label {
+        color: #D1D5DB;
+    }
+
+    .dashboard input {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: #374151;
+        color: #F9FAFB;
+    }
+
+    .dashboard input:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #4B5563;
+    }
+
+    .dashboard input:focus {
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .dashboard input::placeholder {
+        color: #6B7280;
+    }
+}
