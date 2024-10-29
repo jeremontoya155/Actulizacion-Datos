@@ -25,6 +25,44 @@ router.get('/dashboard', isAuthenticated, (req, res) => {
     res.render('dashboard', { clientes: [], message: req.query.message || null });
 });
 
+// Función para eliminar los archivos del día anterior
+function eliminarArchivosAntiguos() {
+    const dirPath = path.join(__dirname, '../public'); // Carpeta donde están los PDFs
+    const ahora = new Date();
+    const ayer = new Date(ahora.setDate(ahora.getDate() - 1)); // Fecha del día anterior
+
+    fs.readdir(dirPath, (err, files) => {
+        if (err) {
+            console.error('Error al leer la carpeta:', err);
+            return;
+        }
+
+        files.forEach(file => {
+            const filePath = path.join(dirPath, file);
+            fs.stat(filePath, (err, stats) => {
+                if (err) {
+                    console.error('Error al obtener la información del archivo:', err);
+                    return;
+                }
+
+                const fileModDate = new Date(stats.mtime);
+                if (fileModDate < ayer && file.endsWith('.pdf')) {
+                    fs.unlink(filePath, (err) => {
+                        if (err) {
+                            console.error('Error al eliminar el archivo:', err);
+                        } else {
+                            console.log(`Archivo ${file} eliminado correctamente.`);
+                        }
+                    });
+                }
+            });
+        });
+    });
+}
+
+// Llamada a la función para eliminar archivos antiguos al iniciar
+eliminarArchivosAntiguos();
+
 // Ruta para buscar cliente por DNI
 router.post('/buscar', async (req, res) => {
     const { dni } = req.body;
