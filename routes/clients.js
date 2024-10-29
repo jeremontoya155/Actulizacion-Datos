@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { originalDB, replicaDB } = require('../db'); // Conexiones a MySQL y PostgreSQL
+const PDFDocument = require('pdfkit'); // Para generar PDFs
+const fs = require('fs');
+const path = require('path');
+const { exec } = require('child_process'); // Para ejecutar comandos del sistema
 
 // Middleware de autenticación
 const isAuthenticated = (req, res, next) => {
@@ -11,16 +15,16 @@ const isAuthenticated = (req, res, next) => {
     }
 };
 
-router.get('/',  (req, res) => {
+// Ruta de inicio de sesión
+router.get('/', (req, res) => {
     res.render('login');
-}); 
+});
 
 // Ruta para el dashboard (requiere autenticación)
 router.get('/dashboard', isAuthenticated, (req, res) => {
-    res.render('dashboard', { clientes: [], message: null });
+    res.render('dashboard', { clientes: [], message: req.query.message || null });
 });
 
-// Ruta para buscar cliente por DNI
 // Ruta para buscar cliente por DNI
 router.post('/buscar', async (req, res) => {
     const { dni } = req.body;
@@ -84,7 +88,61 @@ router.post('/buscar', async (req, res) => {
     }
 });
 
-module.exports = router;
+// Función para generar PDF con los datos del cliente
+function generarPDF(cliente, callback) {
+    const doc = new PDFDocument();
+    const filePath = path.join(__dirname, `../public/cliente_${cliente.documento}.pdf`);
+
+    const stream = fs.createWriteStream(filePath);
+    doc.pipe(stream);
+
+    // Agregar contenido al PDF
+    doc.fontSize(20).text('Datos del Cliente', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(14).text(`Nombre: ${cliente.nombre}`);
+    doc.text(`DNI: ${cliente.documento}`);
+    doc.text(`Teléfono: ${cliente.telefono}`);
+    doc.text(`Email: ${cliente.email}`);
+    doc.text(`Domicilio: ${cliente.domicilio}`);
+    doc.text(`Sucursal: ${cliente.sucursal}`);
+    doc.end();
+
+    // Cuando el PDF ha sido generado y escrito en el sistema, llama al callback
+    stream.on('finish', () => {
+        callback(filePath); // Llama al callback con la ruta del archivo
+    });
+}
+
+// Función para enviar el PDF a la impresora usando rundll32
+function imprimirArchivo(filePath) {
+    const absolutePath = `"${path.resolve(filePath)}"`; // Obtener la ruta absoluta del archivo PDF y ponerla entre comillas
+
+    // Define el nombre de la impresora "Brother DCP-L5650DN series"
+    const nombreImpresora = '"Brother DCP-L5650DN series"'; // Usa el nombre correcto de tu impresora
+
+    // Ejecuta el comando rundll32 para imprimir el archivo en Windows
+    if (process.platform === 'win32') {
+        exec(`rundll32 printui.dll,PrintUIEntry /y /n ${nombreImpresora} && rundll32 shell32.dll,ShellExec_RunDLL ${absolutePath}`, (err, stdout, stderr) => {
+            if (err) {
+                console.error('Error al imprimir en Windows:', err);
+                return;
+            }
+            console.log('Impresión enviada en Windows:', stdout);
+        });
+    } else if (process.platform === 'linux' || process.platform === 'darwin') {
+        // Para Linux o macOS, usa `lp` (CUPS)
+        exec(`lp ${absolutePath}`, (err, stdout, stderr) => {
+            if (err) {
+                console.error('Error al imprimir en Linux/macOS:', err);
+                return;
+            }
+            console.log('Impresión enviada en Linux/macOS:', stdout);
+        });
+    } else {
+        console.log('Sistema operativo no soportado para la impresión automática.');
+    }
+}
+
 // Ruta para guardar o actualizar datos
 router.post('/guardar', isAuthenticated, async (req, res) => {
     const { dni, nombre, telefono, email, domicilio, sucursal, telefonoNuevo, emailNuevo, editar } = req.body;
@@ -92,7 +150,7 @@ router.post('/guardar', isAuthenticated, async (req, res) => {
     try {
         // Verificar si el cliente ya existe en PostgreSQL antes de decidir si se actualiza o se inserta
         const clienteExistente = await replicaDB.query(
-            'SELECT * FROM actualizaciones WHERE Documento = $1', 
+            'SELECT * FROM actualizaciones WHERE Documento = $1',
             [dni]
         );
 
@@ -102,7 +160,6 @@ router.post('/guardar', isAuthenticated, async (req, res) => {
                 `UPDATE actualizaciones SET Nombre = $1, Telefono = $2, Email = $3, Domicilio = $4, Sucursal = $5, TelefonoNuevo = $6, EmailNuevo = $7, FechaModificacion = CURRENT_TIMESTAMP WHERE Documento = $8`,
                 [nombre, telefono, email, domicilio, sucursal, telefonoNuevo, emailNuevo, dni]
             );
-            res.redirect('/clients/dashboard?message=Datos actualizados correctamente');
         } else {
             // Si el cliente no existe, insertarlo en PostgreSQL
             await replicaDB.query(
@@ -110,10 +167,16 @@ router.post('/guardar', isAuthenticated, async (req, res) => {
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
                 [nombre, dni, telefono, email, domicilio, sucursal, telefonoNuevo, emailNuevo]
             );
-            res.redirect('/clients/dashboard?message=Datos guardados correctamente');
         }
+
+        // Generar el PDF con los datos del cliente y luego enviarlo a imprimir
+        generarPDF({ nombre, documento: dni, telefono, email, domicilio, sucursal }, (filePath) => {
+            imprimirArchivo(filePath); // Imprimir el archivo generado
+            res.redirect('/clients/dashboard?message=Datos guardados e impresos correctamente');
+        });
+
     } catch (err) {
-        console.error('Error al guardar los datos', err);
+        console.error('Error al guardar los datos:', err);
         res.status(500).send('Error al guardar los datos.');
     }
 });
