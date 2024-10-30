@@ -1,0 +1,12 @@
+/* Variables globales */
+:root {
+    --primary-color: #3B82F6;
+    --primary-hover: #2563EB;
+    --error-color: #EF4444;
+    --text-primary: #1F2937;
+    --text-secondary: #6B7280;
+    --bg-primary: #ebebeb;
+    --bg-white: #ffffff;
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.1);
+}

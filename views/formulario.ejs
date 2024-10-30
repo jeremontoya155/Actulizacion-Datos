@@ -4,144 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= editar ? 'Editar Cliente' : 'Cargar Nuevo Cliente' %></title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-        }
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            width: 100%;
-            max-width: 1200px;
-            padding: 20px;
-        }
-        .message-container {
-            width: 25%;
-            text-align: left;
-            margin-right: 20px;
-        }
-        .message {
-            color: red;
-            font-size: 14px;
-            margin-top: 10px;
-            margin-bottom: 20px;
-        }
-        form {
-            flex-grow: 1;
-            max-width: 700px;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            border: 1px solid #ddd;
-        }
-        form label {
-            font-weight: bold;
-            color: #555;
-            margin-top: 10px;
-            display: block;
-        }
-        form input {
-            width: 100%;
-            padding: 12px;
-            margin-top: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #ced4da;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-        form input:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-        form button {
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        form button:hover {
-            background-color: #0056b3;
-        }
-        .btn-back {
-            margin-top: 20px;
-            width: 100%;
-            padding: 12px;
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            text-align: center;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .btn-back:hover {
-            background-color: #5a6268;
-        }
-    </style>
+    <link rel="stylesheet" href="../formulario.css">
 </head>
 <body>
     <div class="container">
         <!-- Contenedor del mensaje -->
         <div class="message-container">
             <h1><%= editar ? 'Editar Cliente' : 'Cargar Nuevo Cliente' %></h1>
-            <% if (message) { %>
+            <!-- <% if (message) { %>
                 <p class="message"><%= message %></p>
-            <% } %>
+            <% } %> -->
         </div>
 
+        <!-- Mensaje en forma de pop-up -->
+        <% if (message) { %>
+            <div class="message-popup">
+                <p class="message"><%= message %></p>
+            </div>
+        <% } %>
+
         <!-- Formulario -->
-        <form action="/clients/guardar" method="POST">
+        <form action="/clients/guardar" method="POST" class="form-container">
             <input type="hidden" name="dni" value="<%= dni %>">
             <input type="hidden" name="editar" value="<%= editar %>">
-            
-            <label for="nombre">Nombre:</label>
-            <input type="text" name="nombre" value="<%= cliente.nombre || '' %>" required>
-
-            <label for="documento">Documento (DNI):</label>
-            <input type="text" name="documento" value="<%= cliente.documento || dni %>" readonly>
-
-            <label for="telefono">Teléfono:</label>
-            <input type="text" name="telefono" value="<%= cliente.telefono || '' %>" required>
-
-            <label for="email">Email:</label>
-            <input type="email" name="email" value="<%= cliente.email || '' %>" required>
-
-            <label for="domicilio">Domicilio:</label>
-            <input type="text" name="domicilio" value="<%= cliente.domicilio || '' %>" required>
-
-            <label for="sucursal">Sucursal:</label>
-            <input type="text" name="sucursal" value="<%= cliente.sucursal || '' %>" required>
-
-            <!-- Mostrar campos de "Teléfono Nuevo" y "Email Nuevo" solo si ya existe en PostgreSQL -->
+        
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" name="nombre" value="<%= cliente.nombre || '' %>" required <%= mostrarCamposNuevos ? 'disabled' : '' %>>
+            </div>
+        
+            <div class="form-group">
+                <label for="documento">Documento (DNI):</label>
+                <input type="text" name="documento" value="<%= cliente.documento || dni %>" readonly <%= mostrarCamposNuevos ? 'disabled' : '' %>>
+            </div>
+        
+            <div class="form-group">
+                <label for="telefono">Teléfono:</label>
+                <input type="text" name="telefono" value="<%= cliente.telefono || '' %>" required <%= mostrarCamposNuevos ? 'disabled' : '' %>>
+            </div>
+        
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" name="email" value="<%= cliente.email || '' %>" required <%= mostrarCamposNuevos ? 'disabled' : '' %>>
+            </div>
+        
+            <div class="form-group">
+                <label for="domicilio">Domicilio:</label>
+                <input type="text" name="domicilio" value="<%= cliente.domicilio || '' %>" required>
+            </div>
+        
+            <div class="form-group">
+                <label for="sucursal">Sucursal:</label>
+                <input type="text" name="sucursal" value="<%= cliente.sucursal || '' %>" required>
+            </div>
+        
             <% if (mostrarCamposNuevos) { %>
-                <label for="telefonoNuevo">Teléfono Nuevo:</label>
-                <input type="text" name="telefonoNuevo" value="<%= cliente.telefononuevo || '' %>">
-
-                <label for="emailNuevo">Email Nuevo:</label>
-                <input type="email" name="emailNuevo" value="<%= cliente.emailnuevo || '' %>">
+                <div class="form-group">
+                    <label for="telefonoNuevo">Teléfono Nuevo:</label>
+                    <input type="text" name="telefonoNuevo" value="<%= cliente.telefononuevo || '' %>">
+                </div>
+        
+                <div class="form-group">
+                    <label for="emailNuevo">Email Nuevo:</label>
+                    <input type="email" name="emailNuevo" value="<%= cliente.emailnuevo || '' %>">
+                </div>
             <% } %>
-
-            <button type="submit"><%= editar ? 'Actualizar' : 'Guardar' %></button>
-            <a href="/clients/dashboard" class="btn-back">Volver al Dashboard</a>
+        
+            <div class="form-actions preguntas">
+                <button type="submit"><%= editar ? 'Actualizar' : 'Guardar' %></button>
+                <a href="/clients/dashboard" class="btn-back">Volver al Dashboard</a>
+            </div>
         </form>
+        
     </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const messagePopup = document.querySelector('.message-popup');
+            const messageContainer = document.querySelector('.message-container');
+
+            if (messagePopup) {
+                // Display the message as a pop-up
+                messagePopup.style.display = 'block';
+
+                // After 7 seconds, hide the pop-up and move the message to the message-container
+                setTimeout(() => {
+                    messagePopup.style.display = 'none';
+                    messageContainer.innerHTML += messagePopup.innerHTML;
+                    messagePopup.remove();
+                }, 4000);
+            }
+        });
+    </script>
 </body>
 </html>

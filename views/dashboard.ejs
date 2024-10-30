@@ -8,19 +8,19 @@
     <link rel="stylesheet" href="../dashboard.css">
 </head>
 <body>
-
-    <h1>Buscar Cliente por DNI</h1>
-
-    <!-- Formulario para buscar cliente por DNI -->
-    <form action="/clients/buscar" method="POST">
-        <label for="dni">DNI:</label>
-        <input type="text" name="dni" id="dni" placeholder="Ingresa el DNI" required>
-        <button type="submit">Buscar</button>
-    </form>
+    <div class="dashboard">
+        <h1>Buscar Cliente por DNI</h1>
+    
+        <!-- Formulario para buscar cliente por DNI -->
+        <form action="/clients/buscar" method="POST">
+            <input type="text" name="dni" id="dni" placeholder="Ingresa el DNI" required>
+            <button type="submit">Buscar</button>
+        </form>
+    </div>
 
     <!-- Mostrar resultados de la búsqueda -->
-    <h2>Resultados de la búsqueda</h2>
     <% if (clientes.length > 0) { %>
+        <h2>Resultados de la búsqueda</h2>
         <table>
             <thead>
                 <tr>
